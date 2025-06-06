@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Import Credential</title>
+    <link rel="stylesheet" href="popup.css">
+    <style>
+        /* Add some specific styles for this page */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        .container {
+            padding: 40px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Import and Save VC</h1>
+        <p>Select a Verifiable Credential file (.json or .jsonld) to import into your wallet.</p>
+        
+        <label for="upload-input" id="upload-label" class="button-primary" style="display: inline-block; margin-top: 20px;">
+            Select File
+        </label>
+        <input type="file" id="upload-input" accept=".json, .jsonld" hidden />
+        
+        <p id="status-message" class="error-message" style="margin-top: 20px;"></p>
+    </div>
+    
+    <script src="upload.js"></script>
+</body>
+</html>

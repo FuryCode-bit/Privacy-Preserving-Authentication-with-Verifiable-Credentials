@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VC Wallet</title>
+    <link rel="stylesheet" href="wallet.css"> <!-- Make sure you have corresponding CSS -->
+</head>
+<body>
+
+    <!-- Login View -->
+    <div id="login-view">
+        <h1>VC Wallet Login</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" id="login-button">Login</button>
+            <p id="login-error" class="error-message"></p>
+        </form>
+    </div>
+
+    <!-- Dashboard View (hidden by default) -->
+    <div id="dashboard-view" class="hidden">
+        <header>
+            <h2>My Credentials</h2>
+            <button id="logout-button">Logout</button>
+        </header>
+        <div id="user-info">
+            <p>Welcome, <strong id="user-email"></strong>!</p>
+        </div>
+        
+        <hr>
+
+        <div id="vc-management-actions">
+            <h3>Manage Wallet</h3>
+            <label for="vc-upload" class="upload-button">
+                <!-- Hide the default file input, style the label as a button -->
+                <input type="file" id="vc-upload" accept=".json, .jsonld" hidden />
+                ⬆️ Import Credential
+            </label>
+        </div>
+
+        <hr>
+        
+        <div id="vc-list-container">
+            <h3>Your VCs</h3>
+            <p id="loading-message">Loading credentials...</p>
+            <ul id="vc-list"></ul>
+            <p id="no-vcs-message" class="hidden">You do not have any credentials.</p>
+        </div>
+    </div>
+
+    <!-- Selective Disclosure Modal (hidden by default) -->
+    <div id="disclosure-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-button">×</span>
+            <h2>Create Presentation</h2>
+            <p>Select the claims you want to reveal in the presentation.</p>
+            <form id="disclosure-form">
+                <!-- Checkboxes will be dynamically inserted here by the JS -->
+            </form>
+            <button id="generate-presentation-button">Generate & Download</button>
+            <p id="presentation-error" class="error-message"></p>
+        </div>
+    </div>
+
+    <script src="wallet.js"></script>
+</body>
+</html>

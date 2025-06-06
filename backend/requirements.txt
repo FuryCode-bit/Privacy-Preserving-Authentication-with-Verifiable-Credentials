@@ -1,0 +1,7 @@
+Flask
+Flask-Session
+Flask-CORS
+python-dotenv
+bcrypt
+mysql-connector-python 
+didkit

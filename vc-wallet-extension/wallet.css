@@ -1,0 +1,145 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    width: 380px;
+    padding: 15px;
+    margin: 0;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+.hidden {
+    display: none !important;
+}
+
+h1, h2 {
+    color: #005a9c;
+    text-align: center;
+    margin-top: 0;
+}
+
+/* --- Views --- */
+#login-view, #dashboard-view {
+    display: flex;
+    flex-direction: column;
+}
+
+/* --- Form --- */
+#login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+input[type="email"], input[type="password"] {
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+/* --- Buttons --- */
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    background-color: #0078d4;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #005a9c;
+}
+
+button:disabled {
+    background-color: #a1a1a1;
+    cursor: not-allowed;
+}
+
+#logout-button {
+    background-color: #d9534f;
+    font-size: 12px;
+    padding: 6px 10px;
+}
+
+#logout-button:hover {
+    background-color: #c9302c;
+}
+
+/* --- Dashboard --- */
+#dashboard-view header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+#dashboard-view header h2 {
+    margin: 0;
+}
+
+#user-info {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+hr {
+    border: none;
+    border-top: 1px solid #ddd;
+    margin: 15px 0;
+}
+
+#vc-list-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+#vc-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.vc-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.vc-item h3 {
+    margin: 0 0 8px 0;
+    color: #0078d4;
+    font-size: 16px;
+}
+
+.vc-item p {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
+.vc-item p strong {
+    color: #555;
+}
+
+.error-message {
+    color: #d9534f;
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+}

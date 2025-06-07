@@ -4,69 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VC Wallet</title>
-    <link rel="stylesheet" href="wallet.css"> <!-- Make sure you have corresponding CSS -->
+    <link rel="stylesheet" href="wallet.css">
 </head>
 <body>
 
     <!-- Login View -->
     <div id="login-view">
-        <h1>VC Wallet Login</h1>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" required>
-            </div>
-            <button type="submit" id="login-button">Login</button>
-            <p id="login-error" class="error-message"></p>
-        </form>
+        <div class="header-bar">
+            <h2 class="brand">🎓 VC Wallet</h2>
+        </div>
+        <div class="view-container">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="••••••••">
+                </div>
+                <button type="submit" id="login-button" class="btn btn-primary btn-block">Login</button>
+                <p id="login-error" class="error-message hidden"></p>
+            </form>
+        </div>
     </div>
 
     <!-- Dashboard View (hidden by default) -->
     <div id="dashboard-view" class="hidden">
-        <header>
+        <div class="header-bar">
             <h2>My Credentials</h2>
-            <button id="logout-button">Logout</button>
-        </header>
-        <div id="user-info">
-            <p>Welcome, <strong id="user-email"></strong>!</p>
+            <button id="logout-button" class="btn btn-danger btn-sm">Logout</button>
         </div>
-        
-        <hr>
-
-        <div id="vc-management-actions">
-            <h3>Manage Wallet</h3>
-            <label for="vc-upload" class="upload-button">
-                <!-- Hide the default file input, style the label as a button -->
+        <div class="view-container">
+            <div id="user-info">
+                Welcome, <strong id="user-email"></strong>!
+            </div>
+            
+            <!-- The broken style attribute has been removed from this div -->
+            <div id="vc-management-actions">
+                <label for="vc-upload" class="btn btn-secondary btn-block">
+                    Import Credential
+                </label>
+                <!-- The actual file input remains hidden -->
                 <input type="file" id="vc-upload" accept=".json, .jsonld" hidden />
-                ⬆️ Import Credential
-            </label>
-        </div>
+            </div>
 
-        <hr>
-        
-        <div id="vc-list-container">
-            <h3>Your VCs</h3>
-            <p id="loading-message">Loading credentials...</p>
-            <ul id="vc-list"></ul>
-            <p id="no-vcs-message" class="hidden">You do not have any credentials.</p>
+            <hr>
+            
+            <div id="vc-list-container">
+                <p id="loading-message">Loading credentials...</p>
+                <ul id="vc-list"></ul>
+                <p id="no-vcs-message" class="hidden">You do not have any credentials.</p>
+            </div>
         </div>
     </div>
 
     <!-- Selective Disclosure Modal (hidden by default) -->
     <div id="disclosure-modal" class="modal hidden">
         <div class="modal-content">
-            <span class="close-button">×</span>
-            <h2>Create Presentation</h2>
-            <p>Select the claims you want to reveal in the presentation.</p>
+            <div class="modal-header">
+                <h2>Create Presentation</h2>
+                <button class="close-button">×</button>
+            </div>
+            <p class="text-muted">Select the claims you want to reveal.</p>
             <form id="disclosure-form">
-                <!-- Checkboxes will be dynamically inserted here by the JS -->
+                <!-- Checkboxes will be dynamically inserted here -->
             </form>
-            <button id="generate-presentation-button">Generate & Download</button>
-            <p id="presentation-error" class="error-message"></p>
+            <p id="presentation-error" class="error-message hidden"></p>
+            <div class="modal-footer">
+                <button id="cancel-presentation-button" class="btn btn-secondary">Cancel</button>
+                <button id="generate-presentation-button" class="btn btn-primary">Generate & Download</button>
+            </div>
         </div>
     </div>
 

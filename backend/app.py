@@ -705,6 +705,72 @@ async def create_presentation():
         traceback.print_exc()
         return jsonify({"error": f"Could not create presentation: {str(e)}"}), 500
 
+@app.route('/api/issuer/dashboard_data', methods=['GET'])
+@token_required # Use the synchronous decorator, as this is a DB-only operation
+def get_issuer_dashboard_data():
+    """
+    Provides a consolidated set of statistics and recent activity
+    for the logged-in issuer's dashboard.
+    """
+    # 1. Authorization: Ensure the user has the 'issuer' role
+    issuer_user = g.current_user
+    if issuer_user['role'] != 'issuer':
+        return jsonify({"error": "Access denied. Issuer role required."}), 403
+
+    issuer_id = issuer_user['user_id']
+    dashboard_data = {
+        "stats": {},
+        "recent_activity": []
+    }
+
+    db = get_db()
+    cursor = db.cursor(dictionary=True)
+    try:
+        # 2. Query for "Credentials Issued" stat
+        cursor.execute("SELECT COUNT(*) as total_issued FROM Credentials WHERE issuer_id = %s", (issuer_id,))
+        total_issued = cursor.fetchone()['total_issued']
+        dashboard_data['stats']['credentials_issued'] = total_issued
+
+        # 3. Query for "Active Students" stat (unique holders)
+        cursor.execute("SELECT COUNT(DISTINCT holder_id) as unique_holders FROM Credentials WHERE issuer_id = %s", (issuer_id,))
+        unique_holders = cursor.fetchone()['unique_holders']
+        dashboard_data['stats']['active_students'] = unique_holders
+
+        # 4. --- REPLACEMENT --- Query for "Revoked Credentials" stat
+        # This is a real, valuable metric derived from your schema.
+        query_revoked = """
+            SELECT COUNT(r.revoc_id) as total_revoked
+            FROM Revocations r
+            JOIN Credentials c ON r.cred_id = c.cred_id
+            WHERE c.issuer_id = %s
+        """
+        cursor.execute(query_revoked, (issuer_id,))
+        total_revoked = cursor.fetchone()['total_revoked']
+        dashboard_data['stats']['revoked_credentials'] = total_revoked
+
+        # 5. Query for "Recent Activity"
+        query_activity = """
+            SELECT c.type, c.issued_at, u.email as holder_email
+            FROM Credentials c
+            JOIN Users u ON c.holder_id = u.user_id
+            WHERE c.issuer_id = %s
+            ORDER BY c.issued_at DESC
+            LIMIT 5
+        """
+        cursor.execute(query_activity, (issuer_id,))
+        recent_activity_raw = cursor.fetchall()
+        
+        dashboard_data['recent_activity'] = [
+            f"Issued \"{act['type']}\" to {act['holder_email']}" for act in recent_activity_raw
+        ]
+
+        return jsonify(dashboard_data), 200
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Database error: {str(err)}"}), 500
+    finally:
+        cursor.close()
+
 # --- Wrap the Flask app for ASGI ---
 # This 'app' is what Uvicorn will serve
 

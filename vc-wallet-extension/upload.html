@@ -1,37 +1,34 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- Add a class to the HTML tag -->
+<html lang="en" class="full-page-view">
 <head>
     <meta charset="UTF-8">
     <title>Import Credential</title>
-    <link rel="stylesheet" href="popup.css">
-    <style>
-        /* Add some specific styles for this page */
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-        }
-        .container {
-            padding: 40px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-    </style>
+    <link rel="stylesheet" href="wallet.css">
 </head>
-<body>
-    <div class="container">
-        <h1>Import and Save VC</h1>
-        <p>Select a Verifiable Credential file (.json or .jsonld) to import into your wallet.</p>
-        
-        <label for="upload-input" id="upload-label" class="button-primary" style="display: inline-block; margin-top: 20px;">
-            Select File
-        </label>
-        <input type="file" id="upload-input" accept=".json, .jsonld" hidden />
-        
-        <p id="status-message" class="error-message" style="margin-top: 20px;"></p>
+<!-- Add a class to the BODY tag -->
+<body class="full-page-view">
+    <!-- The header remains for brand consistency -->
+    <div class="header-bar">
+        <h2 class="brand">🎓 Import Credential</h2>
+    </div>
+
+    <!-- This container will now be a full-screen flex container -->
+    <div class="full-page-container">
+        <!-- We wrap the content in a card to keep the nice centered look, but on a full background -->
+        <div class="content-card">
+            <h1>Import and Save VC</h1>
+            <p class="text-muted">
+                Select a Verifiable Credential file (.json or .jsonld) to import it directly into your secure wallet.
+            </p>
+            
+            <label for="upload-input" id="upload-label" class="btn btn-primary" style="margin-top: 1.5rem; padding: 0.8rem 2rem; font-size: 1.1rem;">
+                Select File to Import
+            </label>
+            <input type="file" id="upload-input" accept=".json, .jsonld" hidden />
+            
+            <p id="status-message" class="hidden" style="margin-top: 1.5rem;"></p>
+        </div>
     </div>
     
     <script src="upload.js"></script>

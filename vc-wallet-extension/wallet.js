@@ -21,6 +21,7 @@ const uploadButtonLabel = document.querySelector('label[for="vc-upload"]');
 const disclosureModal = document.getElementById('disclosure-modal');
 const disclosureForm = document.getElementById('disclosure-form');
 const closeModalButton = document.querySelector('.close-button');
+const cancelPresentationButton = document.getElementById('cancel-presentation-button');
 const generatePresentationButton = document.getElementById('generate-presentation-button');
 const presentationError = document.getElementById('presentation-error');
 
@@ -43,15 +44,14 @@ function showView(viewName) {
 }
 
 /**
- * Renders a single Verifiable Credential item in the list.
- * NOW INCLUDES DETAILED INFORMATION FROM CREDENTIAL SUBJECT.
+ * Renders a single Verifiable Credential item using the new card layout.
  * @param {object} vcWrapper - The credential wrapper object from the API.
  */
 function renderVC(vcWrapper) {
     try {
         const credential = JSON.parse(vcWrapper.credential_data);
-        const { cred_id } = vcWrapper; // The database ID is crucial.
-        const { credentialSubject, type, issuanceDate, issuer } = credential;
+        const { cred_id } = vcWrapper;
+        const { credentialSubject, type, issuanceDate } = credential;
 
         const li = document.createElement('li');
         li.className = 'vc-item';
@@ -59,36 +59,29 @@ function renderVC(vcWrapper) {
         const vcType = type.filter(t => t !== 'VerifiableCredential').join(', ') || 'Credential';
         const formattedDate = new Date(issuanceDate).toLocaleDateString();
 
-        // --- KEY CHANGE: Update the innerHTML to include the new fields ---
+        // Create the card structure
         li.innerHTML = `
-            <h3>${vcType}</h3>
-            <div class="vc-details">
+            <div class="vc-item-header">${vcType}</div>
+            <div class="vc-item-body">
                 <p><strong>Course:</strong> ${credentialSubject.course || 'N/A'}</p>
                 <p><strong>University:</strong> ${credentialSubject.university || 'N/A'}</p>
                 <p><strong>Name:</strong> ${credentialSubject.name || 'N/A'}</p>
                 <p><strong>Grade:</strong> ${credentialSubject.grade || 'N/A'}</p>
             </div>
-            <div class="vc-meta">
-                <p><strong>Issued On:</strong> ${formattedDate}</p>
+            <div class="vc-item-footer">
+                <span>Issued: ${formattedDate}</span>
+                <div class="vc-actions">
+                    <button class="btn btn-primary btn-sm disclose-btn" data-cred-id="${cred_id}">Create Presentation</button>
+                </div>
             </div>
         `;
-        
-        // Add actions container (this logic remains the same)
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'vc-actions';
-
-        const discloseButton = document.createElement('button');
-        discloseButton.textContent = 'Create Presentation';
-        discloseButton.onclick = () => openDisclosureModal(cred_id);
-        actionsDiv.appendChild(discloseButton);
-        
-        li.appendChild(actionsDiv);
         vcList.appendChild(li);
-
-    } catch (error) {
+    } catch (error)
+    {
         console.error("Failed to parse or render VC:", error, vcWrapper);
     }
 }
+
 
 /**
  * Fetches the list of credentials from the backend and displays them.
@@ -104,21 +97,16 @@ async function fetchAndDisplayVCs() {
         const token = storageData.token;
 
         if (!token) {
-            console.log("No token found. Forcing logout.");
             await handleLogout();
             return;
         }
 
         const response = await fetch(`${API_BASE_URL}/api/list_credentials`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
+            headers: { 'Authorization': `Bearer ${token}` },
         });
 
         if (response.status === 401 || response.status === 403) {
-            console.log("Token invalid or expired. Forcing logout.");
             await handleLogout();
             return;
         }
@@ -128,7 +116,7 @@ async function fetchAndDisplayVCs() {
         }
 
         const credentials = await response.json();
-        allVCs = credentials; // Cache the full credential objects
+        allVCs = credentials;
 
         if (credentials.length === 0) {
             noVcsMessage.classList.remove('hidden');
@@ -154,28 +142,36 @@ function openDisclosureModal(credId) {
     }
 
     const vc = JSON.parse(vcWrapper.credential_data);
-    disclosureForm.innerHTML = ''; // Clear previous form
-    presentationError.textContent = ''; // Clear previous errors
+    disclosureForm.innerHTML = '';
+    presentationError.textContent = '';
+    presentationError.classList.add('hidden');
     
-    // Get all claims from the credentialSubject
     const claims = Object.keys(vc.credentialSubject);
 
     claims.forEach(claim => {
-        // The subject 'id' is usually required, so we don't make it optional
+        // The subject 'id' is usually required and not optional
         if (claim === 'id') return;
 
-        const checkboxDiv = document.createElement('div');
-        checkboxDiv.className = 'checkbox-group';
-        checkboxDiv.innerHTML = `
-            <label>
-                <input type="checkbox" name="${claim}" value="${claim}" checked />
-                ${claim}
+        // --- THIS IS THE UPDATED PART ---
+        // Create the new row and toggle switch structure
+        const disclosureRow = document.createElement('div');
+        disclosureRow.className = 'disclosure-row';
+
+        // Use a unique ID for the input and a matching 'for' on the label
+        const uniqueId = `toggle-${claim}-${credId}`;
+
+        disclosureRow.innerHTML = `
+            <span class="claim-name">${claim}</span>
+            <label class="toggle-switch" for="${uniqueId}">
+                <input type="checkbox" id="${uniqueId}" name="${claim}" value="${claim}" checked>
+                <span class="toggle-slider"></span>
             </label>
         `;
-        disclosureForm.appendChild(checkboxDiv);
+        // --- END OF UPDATED PART ---
+
+        disclosureForm.appendChild(disclosureRow);
     });
     
-    // Store the database cred_id on the button for the handler to use
     generatePresentationButton.dataset.credId = credId;
     disclosureModal.classList.remove('hidden');
 }
@@ -186,6 +182,7 @@ function closeDisclosureModal() {
 
 async function handleGeneratePresentation() {
     presentationError.textContent = '';
+    presentationError.classList.add('hidden');
     generatePresentationButton.disabled = true;
     generatePresentationButton.textContent = 'Generating...';
 
@@ -196,21 +193,12 @@ async function handleGeneratePresentation() {
         if (!vcWrapper) throw new Error("Could not find original credential data.");
 
         const vc = JSON.parse(vcWrapper.credential_data);
-        const selectedClaims = Array.from(disclosureForm.querySelectorAll('input[type="checkbox"]:checked'))
-            .map(input => input.value);
+        const selectedClaims = Array.from(disclosureForm.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value);
         
-        // Construct the disclosure frame for the backend
         const disclosureFrame = {
             "@context": vc["@context"],
             "type": vc.type,
-            "credentialSubject": {
-                "@explicit": true,
-                "id": {}, // Always reveal the subject's ID by default
-                ...selectedClaims.reduce((acc, claim) => {
-                    acc[claim] = {};
-                    return acc;
-                }, {})
-            }
+            "credentialSubject": { "@explicit": true, "id": {}, ...selectedClaims.reduce((acc, claim) => ({ ...acc, [claim]: {} }), {}) }
         };
 
         const storageData = await browser.storage.local.get('token');
@@ -222,10 +210,7 @@ async function handleGeneratePresentation() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${storageData.token}`
             },
-            body: JSON.stringify({
-                cred_id: credId,
-                disclosure_frame: disclosureFrame
-            })
+            body: JSON.stringify({ cred_id: credId, disclosure_frame: disclosureFrame })
         });
 
         if (!response.ok) {
@@ -235,34 +220,33 @@ async function handleGeneratePresentation() {
 
         const presentation = await response.json();
 
-        // Trigger a download for the generated presentation
         const blob = new Blob([JSON.stringify(presentation, null, 2)], { type: 'application/ld+json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
         a.download = `presentation-${credId}-${Date.now()}.jsonld`;
-        document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
         URL.revokeObjectURL(url);
-
+        a.remove();
+        
         closeDisclosureModal();
 
     } catch (error) {
         console.error("Error generating presentation:", error);
         presentationError.textContent = error.message;
+        presentationError.classList.remove('hidden');
     } finally {
         generatePresentationButton.disabled = false;
         generatePresentationButton.textContent = 'Generate & Download';
     }
 }
 
-
 // --- Authentication and Initialization ---
 
 async function handleLogin(e) {
     e.preventDefault();
     loginError.textContent = '';
+    loginError.classList.add('hidden');
     loginButton.disabled = true;
     loginButton.textContent = 'Logging in...';
 
@@ -288,6 +272,7 @@ async function handleLogin(e) {
 
     } catch (error) {
         loginError.textContent = error.message;
+        loginError.classList.remove('hidden');
     } finally {
         loginButton.disabled = false;
         loginButton.textContent = 'Login';
@@ -301,6 +286,7 @@ async function handleLogout() {
     emailInput.value = '';
     passwordInput.value = '';
     loginError.textContent = '';
+    loginError.classList.add('hidden');
     showView('login');
 }
 
@@ -319,18 +305,26 @@ async function initialize() {
 document.addEventListener('DOMContentLoaded', initialize);
 loginForm.addEventListener('submit', handleLogin);
 logoutButton.addEventListener('click', handleLogout);
-closeModalButton.addEventListener('click', closeDisclosureModal);
-generatePresentationButton.addEventListener('click', handleGeneratePresentation);
 
+// Modal listeners
+closeModalButton.addEventListener('click', closeDisclosureModal);
+cancelPresentationButton.addEventListener('click', closeDisclosureModal);
+generatePresentationButton.addEventListener('click', handleGeneratePresentation);
 window.addEventListener('click', (event) => {
-    if (event.target == disclosureModal) closeDisclosureModal();
+    if (event.target === disclosureModal) closeDisclosureModal();
 });
 
-// --- KEY CHANGE: Replace the old upload listener with this ---
-// Instead of listening for a 'change' event, we listen for a 'click' on the label.
-const uploadButton = document.querySelector('label[for="vc-upload"]');
-uploadButton.addEventListener('click', (event) => {
-    event.preventDefault(); // Prevent the (now hidden) file input from opening
+// Use event delegation for dynamically created buttons
+vcList.addEventListener('click', (e) => {
+    if (e.target && e.target.classList.contains('disclose-btn')) {
+        const credId = parseInt(e.target.dataset.credId, 10);
+        openDisclosureModal(credId);
+    }
+});
+
+// Listener for the "Import Credential" button
+uploadButtonLabel.addEventListener('click', (event) => {
+    event.preventDefault();
     browser.tabs.create({
         url: browser.runtime.getURL('upload.html')
     });

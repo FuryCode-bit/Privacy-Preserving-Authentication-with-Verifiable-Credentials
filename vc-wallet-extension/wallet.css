@@ -1,33 +1,81 @@
+/* --- Global Styles & Variables --- */
+:root {
+  --primary-color: #0d6efd; /* Same blue as reactstrap's primary */
+  --primary-hover: #0b5ed7;
+  --secondary-color: #6c757d; /* reactstrap's secondary */
+  --secondary-hover: #5c636a;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --light-bg: #f8f9fa; /* The light grey background */
+  --card-bg: #ffffff;
+  --text-color: #212529;
+  --text-muted: #6c757d;
+  --border-color: #dee2e6;
+  --shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    width: 380px;
-    padding: 15px;
+    width: 400px;
+    padding: 0;
     margin: 0;
-    background-color: #f4f7f6;
-    color: #333;
+    background-color: var(--light-bg);
+    color: var(--text-color);
 }
 
 .hidden {
     display: none !important;
 }
 
-h1, h2 {
-    color: #005a9c;
-    text-align: center;
-    margin-top: 0;
+h1, h2, h3 {
+    margin: 0;
 }
 
-/* --- Views --- */
+hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 1rem 0;
+}
+
+/* --- Views & Layout --- */
 #login-view, #dashboard-view {
     display: flex;
     flex-direction: column;
 }
 
-/* --- Form --- */
+.view-container {
+    padding: 1.25rem;
+}
+
+.header-bar {
+    background-color: #343a40; /* Dark header to match main app */
+    color: white;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.header-bar h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.header-bar .brand {
+    font-weight: bold;
+}
+
+/* --- Login View --- */
+#login-view .header-bar {
+    justify-content: center;
+}
+
 #login-form {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 1rem;
 }
 
 .form-group {
@@ -35,75 +83,91 @@ h1, h2 {
     flex-direction: column;
 }
 
-label {
-    margin-bottom: 4px;
+.form-group label {
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
     font-weight: 500;
 }
 
-input[type="email"], input[type="password"] {
-    padding: 10px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+.form-group input {
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    border: 1px solid var(--border-color);
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
 /* --- Buttons --- */
-button {
-    padding: 10px 15px;
+.btn {
+    display: inline-block;
+    padding: 0.6rem 1.2rem;
     border: none;
-    border-radius: 4px;
-    background-color: #0078d4;
+    border-radius: 0.375rem;
     color: white;
-    font-size: 16px;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: background-color 0.2s, transform 0.1s;
 }
 
-button:hover {
-    background-color: #005a9c;
+.btn:hover {
+    transform: translateY(-1px);
 }
 
-button:disabled {
+.btn-primary {
+    background-color: var(--primary-color);
+}
+.btn-primary:hover {
+    background-color: var(--primary-hover);
+}
+.btn-secondary {
+    background-color: var(--secondary-color);
+}
+.btn-secondary:hover {
+    background-color: var(--secondary-hover);
+}
+.btn-danger {
+    background-color: var(--danger-color);
+}
+.btn-block {
+    width: 100%;
+}
+.btn-sm {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.875rem;
+}
+
+.btn:disabled {
     background-color: #a1a1a1;
     cursor: not-allowed;
-}
-
-#logout-button {
-    background-color: #d9534f;
-    font-size: 12px;
-    padding: 6px 10px;
-}
-
-#logout-button:hover {
-    background-color: #c9302c;
+    transform: none;
 }
 
 /* --- Dashboard --- */
-#dashboard-view header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-#dashboard-view header h2 {
-    margin: 0;
-}
-
 #user-info {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
 }
 
-hr {
-    border: none;
-    border-top: 1px solid #ddd;
-    margin: 15px 0;
+#vc-management-actions {
+    margin-bottom: 1rem;
+    overflow-y: none;
+    max-width: 320px;
+    text-align: center;
 }
 
 #vc-list-container {
-    max-height: 300px;
+    max-height: 350px; /* More space for scrolling */
     overflow-y: auto;
 }
 
@@ -111,35 +175,254 @@ hr {
     list-style-type: none;
     padding: 0;
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
 }
 
 .vc-item {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 15px;
-    margin-bottom: 10px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow 0.2s;
+}
+.vc-item:hover {
+    box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.1);
 }
 
-.vc-item h3 {
-    margin: 0 0 8px 0;
-    color: #0078d4;
-    font-size: 16px;
+.vc-item-header {
+    background-color: var(--light-bg);
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+}
+
+.vc-item-body {
+    padding: 1rem;
 }
 
 .vc-item p {
-    margin: 4px 0;
-    font-size: 14px;
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
 }
 
 .vc-item p strong {
-    color: #555;
+    color: var(--text-color);
 }
 
-.error-message {
-    color: #d9534f;
-    text-align: center;
-    margin-top: 10px;
+.vc-item-footer {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.vc-actions button {
+    margin-left: 0.5rem;
+}
+
+/* --- Modal --- */
+.modal {
+    position: fixed;
+    z-index: 100;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    margin: auto;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    width: 90%;
+    max-width: 450px;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+.modal-header h2 {
+    font-size: 1.25rem;
+}
+.close-button {
+    color: var(--text-muted);
+    font-size: 1.75rem;
     font-weight: bold;
+    cursor: pointer;
+    background: none;
+    border: none;
+}
+.close-button:hover {
+    color: var(--text-color);
+}
+
+#disclosure-form {
+    margin-bottom: 1.5rem;
+}
+#disclosure-form label {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    border-radius: 4px;
+}
+#disclosure-form label:hover {
+    background-color: #f0f0f0;
+}
+#disclosure-form input[type="checkbox"] {
+    margin-right: 0.75rem;
+    width: 1.15em;
+    height: 1.15em;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+/* --- Utilities --- */
+.error-message {
+    background-color: #f8d7da;
+    color: #842029;
+    padding: 0.75rem;
+    border-radius: 0.375rem;
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: 500;
+}
+
+/* Ensure html and body take up the full viewport height */
+html.full-page-view, body.full-page-view {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow: hidden; /* Prevent unwanted scrollbars */
+}
+
+/* Use flexbox to structure the page (header + content) */
+body.full-page-view {
+    display: flex;
+    flex-direction: column;
+}
+
+/* This container will now grow to fill all available space below the header */
+.full-page-container {
+    flex-grow: 1; /* This is the key property */
+    width: 100%;
+    display: flex; /* Use flexbox to center its child */
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    box-sizing: border-box; /* Include padding in width/height calculation */
+    background-color: var(--light-bg); /* Use the standard light background */
+}
+
+/* A new card to hold the content within the full-page container */
+.content-card {
+    max-width: 600px;
+    width: 100%;
+    padding: 2.5rem;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.disclosure-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.25rem; /* Slightly less vertical padding */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.disclosure-row:last-child {
+    border-bottom: none;
+}
+
+.disclosure-row .claim-name {
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+/* --- The Toggle Switch (Corrected) --- */
+
+/* The main container for the toggle switch - made smaller */
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 35px;  /* Reduced width */
+    height: 15px; /* Reduced height */
+    cursor: pointer;
+}
+
+/* Hide the default HTML checkbox */
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The "track" of the slider */
+.toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 24px; /* Match the new height */
+    transition: background-color 0.3s;
+}
+
+/* The "thumb" or "knob" that slides - corrected alignment */
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px; /* Reduced thumb height */
+    width: 20px;  /* Reduced thumb width */
+    left: 2px;    /* Adjusted left position */
+    
+    /* --- VERTICAL CENTERING FIX --- */
+    top: 50%;
+    transform: translateY(-50%);
+    /* --- END OF FIX --- */
+
+    background-color: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease;
+}
+
+/* --- The "ON" state --- */
+.toggle-switch input:checked + .toggle-slider {
+    background-color: var(--success-color);
+}
+
+/* Slide the thumb to the right, adjusting for new smaller size */
+.toggle-switch input:checked + .toggle-slider:before {
+    /* The transform is now a combination of X and Y */
+    transform: translateX(20px) translateY(-50%);
 }

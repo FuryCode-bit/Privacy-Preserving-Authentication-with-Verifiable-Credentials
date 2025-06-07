@@ -6,7 +6,6 @@ USE projetoVC;
 -- Drop tables if they exist to ensure a clean slate
 DROP TABLE IF EXISTS projetoVC.Revocations;
 DROP TABLE IF EXISTS projetoVC.Credentials;
-DROP TABLE IF EXISTS projetoVC.Dids;
 DROP TABLE IF EXISTS projetoVC.Users;
 
 -- Create Users table

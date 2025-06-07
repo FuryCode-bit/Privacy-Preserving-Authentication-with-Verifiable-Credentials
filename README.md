@@ -6,7 +6,7 @@
 
  * ZKP
 
- * Blockchain to store means of verifieing issuers and revok VCs
+ * Blockchain to store means of verifying issuers and revok VCs
 
 
 ## Website

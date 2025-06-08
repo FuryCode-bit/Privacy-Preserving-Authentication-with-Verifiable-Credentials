@@ -1,12 +1,12 @@
-/* --- Global Styles & Variables --- */
+
 :root {
-  --primary-color: #0d6efd; /* Same blue as reactstrap's primary */
+  --primary-color: #0d6efd; 
   --primary-hover: #0b5ed7;
-  --secondary-color: #6c757d; /* reactstrap's secondary */
+  --secondary-color: #6c757d; 
   --secondary-hover: #5c636a;
   --success-color: #198754;
   --danger-color: #dc3545;
-  --light-bg: #f8f9fa; /* The light grey background */
+  --light-bg: #f8f9fa; 
   --card-bg: #ffffff;
   --text-color: #212529;
   --text-muted: #6c757d;
@@ -38,7 +38,7 @@ hr {
     margin: 1rem 0;
 }
 
-/* --- Views & Layout --- */
+
 #login-view, #dashboard-view {
     display: flex;
     flex-direction: column;
@@ -49,7 +49,7 @@ hr {
 }
 
 .header-bar {
-    background-color: #343a40; /* Dark header to match main app */
+    background-color: #343a40; 
     color: white;
     padding: 0.75rem 1.25rem;
     display: flex;
@@ -67,7 +67,7 @@ hr {
     font-weight: bold;
 }
 
-/* --- Login View --- */
+
 #login-view .header-bar {
     justify-content: center;
 }
@@ -103,7 +103,6 @@ hr {
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
 }
 
-/* --- Buttons --- */
 .btn {
     display: inline-block;
     padding: 0.6rem 1.2rem;
@@ -150,7 +149,6 @@ hr {
     transform: none;
 }
 
-/* --- Dashboard --- */
 #user-info {
     display: flex;
     justify-content: center;
@@ -167,7 +165,7 @@ hr {
 }
 
 #vc-list-container {
-    max-height: 350px; /* More space for scrolling */
+    max-height: 350px; 
     overflow-y: auto;
 }
 
@@ -226,7 +224,7 @@ hr {
     margin-left: 0.5rem;
 }
 
-/* --- Modal --- */
+
 .modal {
     position: fixed;
     z-index: 100;
@@ -301,7 +299,7 @@ hr {
     gap: 0.5rem;
 }
 
-/* --- Utilities --- */
+
 .error-message {
     background-color: #f8d7da;
     color: #842029;
@@ -312,33 +310,33 @@ hr {
     font-weight: 500;
 }
 
-/* Ensure html and body take up the full viewport height */
+
 html.full-page-view, body.full-page-view {
     height: 100%;
     width: 100%;
     margin: 0;
-    overflow: hidden; /* Prevent unwanted scrollbars */
+    overflow: hidden; 
 }
 
-/* Use flexbox to structure the page (header + content) */
+
 body.full-page-view {
     display: flex;
     flex-direction: column;
 }
 
-/* This container will now grow to fill all available space below the header */
+
 .full-page-container {
-    flex-grow: 1; /* This is the key property */
+    flex-grow: 1; 
     width: 100%;
-    display: flex; /* Use flexbox to center its child */
+    display: flex; 
     justify-content: center;
     align-items: center;
     padding: 2rem;
-    box-sizing: border-box; /* Include padding in width/height calculation */
-    background-color: var(--light-bg); /* Use the standard light background */
+    box-sizing: border-box; 
+    background-color: var(--light-bg); 
 }
 
-/* A new card to hold the content within the full-page container */
+
 .content-card {
     max-width: 600px;
     width: 100%;
@@ -354,7 +352,7 @@ body.full-page-view {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.6rem 0.25rem; /* Slightly less vertical padding */
+    padding: 0.6rem 0.25rem; 
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -367,25 +365,25 @@ body.full-page-view {
     text-transform: capitalize;
 }
 
-/* --- The Toggle Switch (Corrected) --- */
 
-/* The main container for the toggle switch - made smaller */
+
+
 .toggle-switch {
     position: relative;
     display: inline-block;
-    width: 35px;  /* Reduced width */
-    height: 15px; /* Reduced height */
+    width: 35px;  
+    height: 15px; 
     cursor: pointer;
 }
 
-/* Hide the default HTML checkbox */
+
 .toggle-switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
-/* The "track" of the slider */
+
 .toggle-slider {
     position: absolute;
     top: 0;
@@ -393,36 +391,59 @@ body.full-page-view {
     right: 0;
     bottom: 0;
     background-color: #ccc;
-    border-radius: 24px; /* Match the new height */
+    border-radius: 24px; 
     transition: background-color 0.3s;
 }
 
-/* The "thumb" or "knob" that slides - corrected alignment */
+
 .toggle-slider:before {
     position: absolute;
     content: "";
-    height: 20px; /* Reduced thumb height */
-    width: 20px;  /* Reduced thumb width */
-    left: 2px;    /* Adjusted left position */
-    
-    /* --- VERTICAL CENTERING FIX --- */
+    height: 20px; 
+    width: 20px;  
+    left: 2px;    
     top: 50%;
     transform: translateY(-50%);
-    /* --- END OF FIX --- */
-
     background-color: white;
     border-radius: 50%;
     box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     transition: transform 0.3s ease;
 }
 
-/* --- The "ON" state --- */
+
 .toggle-switch input:checked + .toggle-slider {
     background-color: var(--success-color);
 }
 
-/* Slide the thumb to the right, adjusting for new smaller size */
+
 .toggle-switch input:checked + .toggle-slider:before {
-    /* The transform is now a combination of X and Y */
+    
     transform: translateX(20px) translateY(-50%);
+}
+
+.vc-category-badge {
+    font-size: 0.75em;
+    font-weight: bold;
+    padding: 0.2em 0.6em;
+    border-radius: 0.25rem;
+    margin-right: 0.75rem;
+    color: white;
+}
+
+.vc-item.vc-category-vc .vc-item-header {
+    background-color: #e0eaff; 
+    color: #004085;
+}
+
+.vc-item.vc-category-vc .vc-category-badge {
+    background-color: #007bff;
+}
+
+.vc-item.vc-category-vp .vc-item-header {
+    background-color: #d4edda; 
+    color: #155724;
+}
+
+.vc-item.vc-category-vp .vc-category-badge {
+    background-color: #28a745;
 }

@@ -16,6 +16,7 @@ const noVcsMessage = document.getElementById('no-vcs-message');
 const logoutButton = document.getElementById('logout-button');
 const vcUploadInput = document.getElementById('vc-upload');
 const uploadButtonLabel = document.querySelector('label[for="vc-upload"]');
+const searchInput = document.getElementById('search-input');
 
 // Modal Elements
 const disclosureModal = document.getElementById('disclosure-modal');
@@ -26,7 +27,7 @@ const generatePresentationButton = document.getElementById('generate-presentatio
 const presentationError = document.getElementById('presentation-error');
 
 // --- State ---
-let allVCs = []; // In-memory cache of all VCs from the backend
+let allVCs = [];
 
 // --- Functions ---
 
@@ -44,41 +45,134 @@ function showView(viewName) {
 }
 
 /**
- * Renders a single Verifiable Credential item using the new card layout.
- * @param {object} vcWrapper - The credential wrapper object from the API.
+ * Finds a document by its ID and triggers a browser download.
  */
-function renderVC(vcWrapper) {
+function handleDownload(docId) {
+    const docWrapper = allVCs.find(v => v.cred_id === docId);
+    if (!docWrapper) {
+        alert("Error: Could not find the document data to download.");
+        return;
+    }
+
     try {
-        const credential = JSON.parse(vcWrapper.credential_data);
-        const { cred_id } = vcWrapper;
-        const { credentialSubject, type, issuanceDate } = credential;
+        const documentJson = JSON.parse(docWrapper.credential_data);
+        const blob = new Blob([JSON.stringify(documentJson, null, 2)], { type: 'application/ld+json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        
+        // Create a user-friendly filename
+        const category = docWrapper.category || 'document';
+        a.download = `${category.toLowerCase()}-${docId}.jsonld`;
+        
+        a.click();
+        URL.revokeObjectURL(url);
+        a.remove();
+    } catch (error) {
+        console.error("Error preparing document for download:", error);
+        alert("An error occurred while preparing the download.");
+    }
+}
 
+function renderSingleVC(docWrapper) {
+    try {
+        const documentData = JSON.parse(docWrapper.credential_data);
+        const { cred_id, category, issued_at } = docWrapper;
+        
         const li = document.createElement('li');
-        li.className = 'vc-item';
+        li.className = `vc-item vc-category-${category.toLowerCase()}`;
 
-        const vcType = type.filter(t => t !== 'VerifiableCredential').join(', ') || 'Credential';
-        const formattedDate = new Date(issuanceDate).toLocaleDateString();
+        let docTitle, mainContent = '';
+        const formattedDate = new Date(issued_at).toLocaleDateString();
+        const downloadButtonHtml = `<button class="btn btn-secondary btn-sm download-btn" data-cred-id="${cred_id}">Download</button>`;
+        let actions = downloadButtonHtml;
 
-        // Create the card structure
+        // Logic for a standard VP
+        if (category === 'VP') {
+            const vcsInVp = Array.isArray(documentData.verifiableCredential) ? documentData.verifiableCredential : [];
+            
+            if (vcsInVp.length > 0) {
+                const firstVc = vcsInVp[0];
+                const specificType = firstVc.type.filter(t => t !== 'VerifiableCredential').pop() || 'Credential';
+                docTitle = `Presentation: ${specificType}`;
+                
+                const subject = firstVc.credentialSubject || {};
+                mainContent = `
+                    <p><strong>Course:</strong> ${subject.course || 'N/A'}</p>
+                    <p><strong>University:</strong> ${subject.university || 'N/A'}</p>
+                    <p><strong>Name:</strong> ${subject.name || 'N/A'}</p>
+                    <p><strong>Grade:</strong> ${subject.grade || 'N/A'}</p>
+                `;
+            } else {
+                docTitle = 'Verifiable Presentation';
+                mainContent = `<p class="text-muted">This presentation is empty.</p>`;
+            }
+        } else { // Logic for a standard VC
+            const { type } = documentData;
+            docTitle = type.filter(t => t !== 'VerifiableCredential').pop() || 'Credential';
+            const subject = documentData.credentialSubject || {};
+            mainContent = `
+                <p><strong>Course:</strong> ${subject.course || 'N/A'}</p>
+                <p><strong>University:</strong> ${subject.university || 'N/A'}</p>
+                <p><strong>Name:</strong> ${subject.name || 'N/A'}</p>
+                <p><strong>Grade:</strong> ${subject.grade || 'N/A'}</p>
+            `;
+            actions = `<button class="btn btn-primary btn-sm disclose-btn" data-cred-id="${cred_id}">Create VP</button>` + downloadButtonHtml;
+        }
+        
         li.innerHTML = `
-            <div class="vc-item-header">${vcType}</div>
-            <div class="vc-item-body">
-                <p><strong>Course:</strong> ${credentialSubject.course || 'N/A'}</p>
-                <p><strong>University:</strong> ${credentialSubject.university || 'N/A'}</p>
-                <p><strong>Name:</strong> ${credentialSubject.name || 'N/A'}</p>
-                <p><strong>Grade:</strong> ${credentialSubject.grade || 'N/A'}</p>
+            <div class="vc-item-header">
+                <span class="vc-category-badge">${category}</span>
+                ${docTitle}
             </div>
+            <div class="vc-item-body">${mainContent}</div>
             <div class="vc-item-footer">
-                <span>Issued: ${formattedDate}</span>
-                <div class="vc-actions">
-                    <button class="btn btn-primary btn-sm disclose-btn" data-cred-id="${cred_id}">Create Presentation</button>
-                </div>
+                <span>Stored: ${formattedDate}</span>
+                <div class="vc-actions">${actions}</div>
             </div>
         `;
         vcList.appendChild(li);
-    } catch (error)
-    {
-        console.error("Failed to parse or render VC:", error, vcWrapper);
+
+    } catch (error) {
+        console.error("Failed to parse or render document:", error, docWrapper);
+    }
+}
+
+/**
+ * Renders the list of documents, filtered by a search term.
+ */
+function displayFilteredVCs(searchTerm = '') {
+    vcList.innerHTML = '';
+
+    const filtered = allVCs.filter(docWrapper => {
+        try {
+            const doc = JSON.parse(docWrapper.credential_data);
+            const category = docWrapper.category || 'VC';
+            let title = '';
+            if (category === 'VP') {
+                const vcsInVp = Array.isArray(doc.verifiableCredential) ? doc.verifiableCredential : [];
+                if (vcsInVp.length > 0) {
+                    title = vcsInVp[0].type.filter(t => t !== 'VerifiableCredential').pop() || 'Credential';
+                }
+            } else {
+                title = doc.type.filter(t => t !== 'VerifiableCredential').pop() || 'Credential';
+            }
+            return title.toLowerCase().includes(searchTerm.toLowerCase());
+        } catch (e) {
+            return false;
+        }
+    });
+
+    if (filtered.length === 0) {
+        if (searchTerm) {
+            noVcsMessage.textContent = `No documents found for "${searchTerm}".`;
+        } else {
+            noVcsMessage.textContent = `You do not have any credentials.`;
+        }
+        noVcsMessage.classList.remove('hidden');
+    } else {
+        noVcsMessage.classList.add('hidden');
+        filtered.forEach(renderSingleVC);
     }
 }
 
@@ -87,43 +181,25 @@ function renderVC(vcWrapper) {
  * Fetches the list of credentials from the backend and displays them.
  */
 async function fetchAndDisplayVCs() {
-    vcList.innerHTML = ''; // Clear previous list
+    vcList.innerHTML = '';
     loadingMessage.classList.remove('hidden');
     noVcsMessage.classList.add('hidden');
-    allVCs = []; // Clear the cache
+    allVCs = [];
 
     try {
         const storageData = await browser.storage.local.get('token');
         const token = storageData.token;
+        if (!token) { await handleLogout(); return; }
 
-        if (!token) {
-            await handleLogout();
-            return;
-        }
-
-        const response = await fetch(`${API_BASE_URL}/api/list_credentials`, {
-            method: 'GET',
+        const response = await fetch(`${API_BASE_URL}/api/holder/list_credentials`, {
             headers: { 'Authorization': `Bearer ${token}` },
         });
 
-        if (response.status === 401 || response.status === 403) {
-            await handleLogout();
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error(`Server responded with status: ${response.status}`);
-        }
+        if (!response.ok) { await handleLogout(); return; }
 
         const credentials = await response.json();
         allVCs = credentials;
-
-        if (credentials.length === 0) {
-            noVcsMessage.classList.remove('hidden');
-        } else {
-            credentials.forEach(renderVC);
-        }
-
+        displayFilteredVCs();
     } catch (error) {
         console.error('Error fetching credentials:', error);
         vcList.innerHTML = `<p class="error-message">Could not load credentials.</p>`;
@@ -131,7 +207,6 @@ async function fetchAndDisplayVCs() {
         loadingMessage.classList.add('hidden');
     }
 }
-
 // --- Selective Disclosure Modal Logic ---
 
 function openDisclosureModal(credId) {
@@ -149,15 +224,13 @@ function openDisclosureModal(credId) {
     const claims = Object.keys(vc.credentialSubject);
 
     claims.forEach(claim => {
-        // The subject 'id' is usually required and not optional
+
         if (claim === 'id') return;
 
-        // --- THIS IS THE UPDATED PART ---
-        // Create the new row and toggle switch structure
+        // Createa the new row and toggle switch structure
         const disclosureRow = document.createElement('div');
         disclosureRow.className = 'disclosure-row';
 
-        // Use a unique ID for the input and a matching 'for' on the label
         const uniqueId = `toggle-${claim}-${credId}`;
 
         disclosureRow.innerHTML = `
@@ -167,7 +240,6 @@ function openDisclosureModal(credId) {
                 <span class="toggle-slider"></span>
             </label>
         `;
-        // --- END OF UPDATED PART ---
 
         disclosureForm.appendChild(disclosureRow);
     });
@@ -194,7 +266,13 @@ async function handleGeneratePresentation() {
 
         const vc = JSON.parse(vcWrapper.credential_data);
         const selectedClaims = Array.from(disclosureForm.querySelectorAll('input[type="checkbox"]:checked')).map(input => input.value);
-        
+
+        if (selectedClaims.length === 0) {
+            presentationError.textContent = "You must select at least one claim to reveal.";
+            presentationError.classList.remove('hidden');
+        return;
+        }
+
         const disclosureFrame = {
             "@context": vc["@context"],
             "type": vc.type,
@@ -204,7 +282,7 @@ async function handleGeneratePresentation() {
         const storageData = await browser.storage.local.get('token');
         if (!storageData.token) throw new Error("Authentication token not found.");
 
-        const response = await fetch(`${API_BASE_URL}/api/create_presentation`, {
+        const response = await fetch(`${API_BASE_URL}/api/holder/create_presentation`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -314,12 +392,21 @@ window.addEventListener('click', (event) => {
     if (event.target === disclosureModal) closeDisclosureModal();
 });
 
-// Use event delegation for dynamically created buttons
+// Event delegation for dynamically created buttons
 vcList.addEventListener('click', (e) => {
     if (e.target && e.target.classList.contains('disclose-btn')) {
         const credId = parseInt(e.target.dataset.credId, 10);
         openDisclosureModal(credId);
     }
+        else if (e.target && e.target.classList.contains('download-btn')) {
+        const credId = parseInt(e.target.dataset.credId, 10);
+        handleDownload(credId);
+    }
+});
+
+// Listener for the search input
+searchInput.addEventListener('input', (e) => {
+    displayFilteredVCs(e.target.value);
 });
 
 // Listener for the "Import Credential" button

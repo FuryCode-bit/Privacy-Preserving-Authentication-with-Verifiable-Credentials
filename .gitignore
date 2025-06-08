@@ -10,7 +10,10 @@ instance/
 *.log
 *.pot
 *.mo
-
+*.webm
+*.pdf
+diagrama1.png
+diagrama2todo.png
 # Flask-specific
 *.egg-info/
 dist/

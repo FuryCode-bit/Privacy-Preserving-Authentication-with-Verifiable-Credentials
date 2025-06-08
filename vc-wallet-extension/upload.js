@@ -16,7 +16,7 @@ async function handleVCUpload(event) {
 
     // Reset UI state
     uploadLabel.textContent = 'Uploading...';
-    uploadLabel.classList.add('disabled'); // Use a class to style disabled state
+    uploadLabel.classList.add('disabled');
     statusMessage.textContent = '';
     statusMessage.classList.add('hidden');
 
@@ -33,7 +33,7 @@ async function handleVCUpload(event) {
         const vcJson = JSON.parse(fileContent);
 
         // 2. Call the backend upload endpoint
-        const response = await fetch(`${API_BASE_URL}/api/upload_vc`, {
+        const response = await fetch(`${API_BASE_URL}/api/holder/upload`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -47,15 +47,11 @@ async function handleVCUpload(event) {
             throw new Error(result.error || `Server responded with status: ${response.status}`);
         }
 
-        // 3. Show success message and close the tab after a delay
-        // We can create a new success class in wallet.css or reuse an existing one.
-        // For simplicity, let's just make it green.
         statusMessage.style.color = 'var(--success-color)';
         statusMessage.textContent = '✅ Success! This tab will close in 3 seconds.';
         statusMessage.classList.remove('hidden');
         
         setTimeout(() => {
-            // This will close the tab that this script is running in.
             window.close();
         }, 3000);
 
@@ -64,12 +60,10 @@ async function handleVCUpload(event) {
         statusMessage.textContent = `❌ Error: ${error.message}`;
         statusMessage.classList.remove('hidden');
     } finally {
-        // Only re-enable the button if there was an error, not on success
         if (statusMessage.style.color.includes('var(--danger-color)')) {
             uploadLabel.textContent = 'Select Another File';
             uploadLabel.classList.remove('disabled');
         }
-        // Reset the file input so the user can select the same file again after an error
         event.target.value = null; 
     }
 }

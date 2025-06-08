@@ -39,18 +39,16 @@
             <div id="user-info">
                 Welcome, <strong id="user-email"></strong>!
             </div>
-            
-            <!-- The broken style attribute has been removed from this div -->
             <div id="vc-management-actions">
                 <label for="vc-upload" class="btn btn-secondary btn-block">
                     Import Credential
                 </label>
-                <!-- The actual file input remains hidden -->
                 <input type="file" id="vc-upload" accept=".json, .jsonld" hidden />
             </div>
-
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                <input type="text" id="search-input" placeholder="Search by title...">
+            </div>
             <hr>
-            
             <div id="vc-list-container">
                 <p id="loading-message">Loading credentials...</p>
                 <ul id="vc-list"></ul>
@@ -59,7 +57,7 @@
         </div>
     </div>
 
-    <!-- Selective Disclosure Modal (hidden by default) -->
+    <!-- Selective Disclosure Modal -->
     <div id="disclosure-modal" class="modal hidden">
         <div class="modal-content">
             <div class="modal-header">

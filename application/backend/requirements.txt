@@ -1,0 +1,10 @@
+Flask
+Flask-CORS
+Click
+python-dotenv
+bcrypt
+mysql-connector-python 
+didkit
+PyJWT
+asgiref
+uvicorn
